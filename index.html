@@ -1,0 +1,143 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Later by Erol</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Later</h1>
+        <p>Redis-backed event scheduling library for Ruby</p>
+
+        <p class="view"><a href="https://github.com/Erol/later">View the Project on GitHub <small>Erol/later</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/Erol/later/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/Erol/later/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/Erol/later">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>Later</h1>
+
+<p><a href="erol.github.com/later"><strong>Later</strong></a> is a Redis-backed event scheduling library for Ruby.</p>
+
+<h2>Installation</h2>
+
+<p>Add this line to your application's Gemfile:</p>
+
+<pre><code>gem 'later'
+</code></pre>
+
+<p>And then execute:</p>
+
+<pre><code>$ bundle
+</code></pre>
+
+<p>Or install it yourself as:</p>
+
+<pre><code>$ gem install later
+</code></pre>
+
+<h2>Usage</h2>
+
+<p>If you're not using Bundler to require your gems, you will need to require Later in your application:</p>
+
+<pre><code>require 'later'
+</code></pre>
+
+<p>Later allows you to manage multiple schedule sets:</p>
+
+<pre><code>Later[:reservations]
+Later[:appointments]
+</code></pre>
+
+<p>The schedule sets are referenced based on the default Redis instance. If you need a schedule set which resides on a different Redis instance, you can pass a <a href="github.com/soveran/nest">Nest</a> object.</p>
+
+<pre><code>redis = Redis.new host: host, port: port
+key = Nest.new :reservations, redis
+
+Later[key]
+</code></pre>
+
+<p>Setting an event schedule is simple:</p>
+
+<pre><code>Later[key].set 'my-unique-event', Time.now + 60
+</code></pre>
+
+<p>And can be reset with equal simplicity:</p>
+
+<pre><code>Later[key].set 'my-unique-event', Time.now + 120
+</code></pre>
+
+<p>An event schedule can also be unset:</p>
+
+<pre><code>Later[key].unset 'my-unique-event'
+</code></pre>
+
+<p>Note that event names should be unique in the scope of the schedule set.</p>
+
+<h3>Workers</h3>
+
+<p>Workers are Ruby processes that run forever. They allow you to process event schedules in the background:</p>
+
+<pre><code>require 'later'
+
+Later[:reservations].each do |event|
+  # Do something with the event.
+end
+
+# This line is never reached.
+</code></pre>
+
+<p>If for some reason, a worker has to stop itself from running:</p>
+
+<pre><code>Later[:reservations].each do |event|
+  # Do something with the event.
+
+  Later[:reservations].stop if stop?
+end
+
+# This line is reached if stop? is true.
+</code></pre>
+
+<h2>Contributing</h2>
+
+<ol>
+<li>Fork it</li>
+<li>Create your feature branch ( <code>git checkout -b my-new-feature</code> )</li>
+<li>Create tests and make them pass ( <code>rake test</code> )</li>
+<li>Commit your changes ( <code>git commit -am 'Added some feature'</code> )</li>
+<li>Push to the branch ( <code>git push origin my-new-feature</code> )</li>
+<li>Create a new Pull Request</li>
+</ol>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/Erol">Erol</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+              <script type="text/javascript">
+            var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+            document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+          </script>
+          <script type="text/javascript">
+            try {
+              var pageTracker = _gat._getTracker("UA-31066891-4");
+            pageTracker._trackPageview();
+            } catch(err) {}
+          </script>
+
+  </body>
+</html>
