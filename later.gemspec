@@ -6,7 +6,7 @@ Gem::Specification.new do |gem|
   gem.email         = ['erol.fornoles@gmail.com']
   gem.description   = %q{Later is a Redis-backed event scheduling library for Ruby}
   gem.summary       = %q{Later is a Redis-backed event scheduling library for Ruby}
-  gem.homepage      = 'erol.github.com/later'
+  gem.homepage      = 'http://erol.github.com/later'
 
   gem.files         = `git ls-files`.split($\)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
