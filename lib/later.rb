@@ -49,11 +49,9 @@ module Later
         key[:schedule].zremrangebyscore '-inf', time
         ids = key[:schedule].redis.exec.first
 
-        key.redis.pipelined do
-          ids.each do |id|
-            key[:queue].lpush id
-          end
-        end
+        key.redis.multi
+        ids.each { |id| key[:queue].lpush id }
+        key.redis.exec
 
         event = key[:queue].brpoplpush(key[:now], 1)
 
