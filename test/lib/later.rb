@@ -30,25 +30,25 @@ class LaterTest < MiniTest::Unit::TestCase
   def test_count_set_and_unset_event_schedules
     time = Time.now
 
-    1.upto(10) do |i|
+    1.upto(3) do |i|
       Later[@key].set i.to_s, time
       assert_equal i, Later[@key].count
     end
 
-    1.upto(10) do |i|
+    1.upto(3) do |i|
       Later[@key].unset i.to_s
-      assert_equal 10 - i, Later[@key].count
+      assert_equal 3 - i, Later[@key].count
     end
   end
 
   def test_process_many_event_schedules
-    start = Time.now + 20
+    start = Time.now + 2
 
     times = []
     schedules = Hash.new { |h,k| h[k] = [] }
 
-    1.upto(1000) do |i|
-      time = start + i / 100
+    1.upto(100) do |i|
+      time = start + i / 10
       times.unshift time
       schedules[time].unshift event: i.to_s, time: time
     end
@@ -58,7 +58,7 @@ class LaterTest < MiniTest::Unit::TestCase
     end
 
     Thread.new do
-      sleep 30
+      sleep 2 + 10 + (start - Time.now).to_i
       Later[@key].stop
     end
 
