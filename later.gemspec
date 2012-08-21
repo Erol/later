@@ -17,6 +17,7 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'redis'
   gem.add_dependency 'nest'
+  gem.add_dependency 'json'
 
   gem.add_development_dependency 'minitest'
 end

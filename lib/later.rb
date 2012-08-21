@@ -1,19 +1,24 @@
 require 'later/version'
 require 'redis'
 require 'nest'
+require 'json'
 
 module Later
   class Schedule
-    def key
-      @key
-    end
-
     def initialize(key)
       if key.is_a?(Nest)
         @key = key
       else
         @key = Later.key[key]
       end
+    end
+
+    def key
+      @key
+    end
+
+    def exceptions
+      @exceptions ||= key[:exceptions]
     end
 
     def [](event)
@@ -44,21 +49,41 @@ module Later
 
         time = Time.now.to_i
 
-        key[:schedule].redis.multi
-        key[:schedule].zrangebyscore '-inf', time
-        key[:schedule].zremrangebyscore '-inf', time
-        ids = key[:schedule].redis.exec.first
+        schedule.redis.multi
+        schedule.zrangebyscore '-inf', time
+        schedule.zremrangebyscore '-inf', time
+        ids = schedule.redis.exec.first
 
         key.redis.multi
-        ids.each { |id| key[:queue].lpush id }
+        ids.each { |id| queue.lpush id }
         key.redis.exec
 
-        event = key[:queue].brpoplpush(key[:now], 1)
+        event = queue.brpoplpush(backup, 1)
 
         next unless event
 
-        block.call event
+        begin
+          block.call event
+        rescue Exception => e
+          exceptions.rpush JSON(time: Time.now, event: event, message: e.inspect)
+        ensure
+          backup.del
+        end
       end
+    end
+
+    protected
+
+    def schedule
+      @schedule ||= key[:schedule]
+    end
+
+    def queue
+      @queue ||= key[:queue]
+    end
+
+    def backup
+      @backup ||= queue[Socket.gethostname][Process.pid]
     end
   end
 

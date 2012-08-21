@@ -71,4 +71,33 @@ class LaterTest < MiniTest::Unit::TestCase
 
     assert_equal 0, Later[@key].count
   end
+
+  def test_exceptions_raised_within_the_worker_loop_are_handled_and_logged
+    start = Time.now + 2
+
+    1.upto(3) do |i|
+      Later[@key].set i.to_s, start + i
+    end
+
+    Thread.new do
+      sleep 2 + 3 + (start - Time.now).to_i
+      Later[@key].stop
+    end
+
+    Later[@key].each do |event|
+      raise Exception, "an unknown error for #{event} has occurred"
+    end
+
+    assert_equal 0, Later[@key].count
+
+    exceptions = Later[@key].exceptions.lrange 0, -1
+    exceptions = exceptions.map{ |e| JSON(e) }
+
+    assert_equal '1', exceptions[0]['event']
+    assert_equal '#<Exception: an unknown error for 1 has occurred>', exceptions[0]['message']
+    assert_equal '2', exceptions[1]['event']
+    assert_equal '#<Exception: an unknown error for 2 has occurred>', exceptions[1]['message']
+    assert_equal '3', exceptions[2]['event']
+    assert_equal '#<Exception: an unknown error for 3 has occurred>', exceptions[2]['message']
+  end
 end
