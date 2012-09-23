@@ -32,37 +32,17 @@
 
 <p><a href="erol.github.com/later"><strong>Later</strong></a> is a Redis-backed event scheduling library for Ruby.</p>
 
-<h2>Installation</h2>
-
-<p>Add this line to your application's Gemfile:</p>
-
-<pre><code>gem 'later'
-</code></pre>
-
-<p>And then execute:</p>
-
-<pre><code>$ bundle
-</code></pre>
-
-<p>Or install it yourself as:</p>
-
-<pre><code>$ gem install later
-</code></pre>
-
 <h2>Usage</h2>
 
-<p>If you're not using Bundler to require your gems, you will need to require Later in your application:</p>
+<p>Later allows you to manage schedule sets:</p>
 
 <pre><code>require 'later'
-</code></pre>
 
-<p>Later allows you to manage multiple schedule sets:</p>
-
-<pre><code>Later[:reservations]
+Later[:reservations]
 Later[:appointments]
 </code></pre>
 
-<p>The schedule sets are referenced based on the default Redis instance. If you need a schedule set which resides on a different Redis instance, you can pass a <a href="github.com/soveran/nest">Nest</a> object.</p>
+<p>The schedule sets are referenced based on the default Redis instance. If you need a schedule set which resides on a different Redis instance, you can pass a <a href="github.com/soveran/nest">Nest</a> object when referencing a schedule set.</p>
 
 <pre><code>redis = Redis.new host: host, port: port
 key = Nest.new :reservations, redis
@@ -75,7 +55,7 @@ Later[key]
 <pre><code>Later[key].set 'my-unique-event', Time.now + 60
 </code></pre>
 
-<p>And can be reset with equal simplicity:</p>
+<p>And can be reschedule with equal simplicity:</p>
 
 <pre><code>Later[key].set 'my-unique-event', Time.now + 120
 </code></pre>
@@ -85,7 +65,7 @@ Later[key]
 <pre><code>Later[key].unset 'my-unique-event'
 </code></pre>
 
-<p>Note that event names should be unique in the scope of the schedule set.</p>
+<p>Note that event names should be unique in the scope of its schedule set.</p>
 
 <h3>Workers</h3>
 
@@ -109,6 +89,23 @@ end
 end
 
 # This line is reached if stop? is true.
+</code></pre>
+
+<h2>Installation</h2>
+
+<p>Add this line to your application's Gemfile:</p>
+
+<pre><code>gem 'later'
+</code></pre>
+
+<p>And then execute:</p>
+
+<pre><code>$ bundle
+</code></pre>
+
+<p>Or install it yourself as:</p>
+
+<pre><code>$ gem install later
 </code></pre>
 
 <h2>Contributing</h2>
