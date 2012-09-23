@@ -30,42 +30,42 @@
       <section>
         <h1>Later</h1>
 
-<p><a href="erol.github.com/later"><strong>Later</strong></a> is a Redis-backed event scheduling library for Ruby.</p>
+<p><a href="erol.github.com/later"><strong>Later</strong></a> is a lightweight Redis-backed event scheduling library for Ruby.</p>
 
 <h2>Usage</h2>
 
-<p>Later allows you to manage schedule sets:</p>
+<p>Later allows you to set an event with unique names on a schedule and run it in the future:</p>
 
 <pre><code>require 'later'
 
-Later[:reservations]
+Later[:reservations].set 'event-1', Time.now + 60
+Later[:reservations].set 'event-2', Time.now + 120
+Later[:reservations].set 'event-3', Time.now + 180
+</code></pre>
+
+<p>Rescheduling an event is simple:</p>
+
+<pre><code>Later[:reservations].set 'event-1', Time.now + 240
+</code></pre>
+
+<p>And an event can also be unset:</p>
+
+<pre><code>Later[key].unset 'event-1'
+</code></pre>
+
+<p>You can manage multiple schedules using different keys:</p>
+
+<pre><code>Later[:reservations]
 Later[:appointments]
 </code></pre>
 
-<p>The schedule sets are referenced based on the default Redis instance. If you need a schedule set which resides on a different Redis instance, you can pass a <a href="github.com/soveran/nest">Nest</a> object when referencing a schedule set.</p>
+<p>The schedules are stored on the default Redis instance. If you need a schedule which must reside on a different Redis instance, you can pass a <a href="github.com/soveran/nest">Nest</a> object when referencing a schedule set.</p>
 
 <pre><code>redis = Redis.new host: host, port: port
 key = Nest.new :reservations, redis
 
 Later[key]
 </code></pre>
-
-<p>Setting an event schedule is simple:</p>
-
-<pre><code>Later[key].set 'my-unique-event', Time.now + 60
-</code></pre>
-
-<p>And can be reschedule with equal simplicity:</p>
-
-<pre><code>Later[key].set 'my-unique-event', Time.now + 120
-</code></pre>
-
-<p>An event schedule can also be unset:</p>
-
-<pre><code>Later[key].unset 'my-unique-event'
-</code></pre>
-
-<p>Note that event names should be unique in the scope of its schedule set.</p>
 
 <h3>Workers</h3>
 
