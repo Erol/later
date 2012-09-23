@@ -54,9 +54,9 @@ module Later
         schedule.zremrangebyscore '-inf', time
         ids = schedule.redis.exec.first
 
-        key.redis.multi
-        ids.each { |id| queue.lpush id }
-        key.redis.exec
+        key.redis.multi do
+          ids.each { |id| queue.lpush id }
+        end
 
         event = queue.brpoplpush(backup, 1)
 
