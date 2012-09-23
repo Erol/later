@@ -1,37 +1,37 @@
 # Later
 
-[**Later**](erol.github.com/later) is a Redis-backed event scheduling library for Ruby.
+[**Later**](erol.github.com/later) is a lightweight Redis-backed event scheduling library for Ruby.
 
 ## Usage
 
-Later allows you to manage schedule sets:
+Later allows you to set an event with unique names on a schedule and run it in the future:
 
     require 'later'
+
+    Later[:reservations].set 'event-1', Time.now + 60
+    Later[:reservations].set 'event-2', Time.now + 120
+    Later[:reservations].set 'event-3', Time.now + 180
+
+Rescheduling an event is simple:
+
+    Later[:reservations].set 'event-1', Time.now + 240
+
+And an event can also be unset:
+
+    Later[key].unset 'event-1'
+
+You can manage multiple schedules using different keys:
 
     Later[:reservations]
     Later[:appointments]
 
-The schedule sets are referenced based on the default Redis instance. If you need a schedule set which resides on a different Redis instance, you can pass a [Nest](github.com/soveran/nest) object when referencing a schedule set.
+The schedules are stored on the default Redis instance. If you need a schedule which must reside on a different Redis instance, you can pass a [Nest](github.com/soveran/nest) object when referencing a schedule set.
 
     redis = Redis.new host: host, port: port
     key = Nest.new :reservations, redis
 
     Later[key]
 
-Setting an event schedule is simple:
-
-    Later[key].set 'my-unique-event', Time.now + 60
-	
-And can be reschedule with equal simplicity:
-
-    Later[key].set 'my-unique-event', Time.now + 120
-
-An event schedule can also be unset:
-
-    Later[key].unset 'my-unique-event'
-	
-Note that event names should be unique in the scope of its schedule set.
-	
 ### Workers
 
 Workers are Ruby processes that run forever. They allow you to process event schedules in the background:
