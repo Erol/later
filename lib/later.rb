@@ -49,10 +49,10 @@ module Later
 
         time = Time.now.to_i
 
-        schedule.redis.multi
-        schedule.zrangebyscore '-inf', time
-        schedule.zremrangebyscore '-inf', time
-        ids = schedule.redis.exec.first
+        ids = schedule.redis.multi do
+          schedule.zrangebyscore '-inf', time
+          schedule.zremrangebyscore '-inf', time
+        end.first
 
         key.redis.multi do
           ids.each { |id| queue.lpush id }
