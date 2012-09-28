@@ -2,9 +2,14 @@ require 'later/version'
 require 'redis'
 require 'nest'
 require 'json'
+require 'predicates'
 
 module Later
   class Schedule
+    extend Predicates
+
+    predicate :stop?
+
     def initialize(key)
       if key.is_a?(Nest)
         @key = key
@@ -37,7 +42,7 @@ module Later
       key[:schedule].zrem event
     end
 
-    def stop
+    def stop!
       @stop = true
     end
 
@@ -45,7 +50,7 @@ module Later
       @stop = false
 
       loop do
-        break if @stop
+        break if stop?
 
         time = Time.now.to_i
 

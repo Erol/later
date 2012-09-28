@@ -59,7 +59,7 @@ class LaterTest < MiniTest::Unit::TestCase
 
     Thread.new do
       sleep 2 + 10 + (start - Time.now).to_i
-      Later[@key].stop
+      Later[@key].stop!
     end
 
     Later[@key].each do |event|
@@ -81,7 +81,7 @@ class LaterTest < MiniTest::Unit::TestCase
 
     Thread.new do
       sleep 2 + 3 + (start - Time.now).to_i
-      Later[@key].stop
+      Later[@key].stop!
     end
 
     Later[@key].each do |event|
