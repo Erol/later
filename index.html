@@ -34,7 +34,7 @@
 
 <h2>Usage</h2>
 
-<p>Later allows you to set an event with unique names on a schedule and run it in the future:</p>
+<p>Later allows you to set unique events on a schedule and run them in the future:</p>
 
 <pre><code>require 'later'
 
@@ -85,10 +85,10 @@ end
 <pre><code>Later[:reservations].each do |event|
   # Do something with the event.
 
-  Later[:reservations].stop if stop?
+  Later[:reservations].stop! if stop?
 end
 
-# This line is reached if stop? is true.
+# This line is reached when stop? is true and Later[:reservations].stop! is called.
 </code></pre>
 
 <h2>Installation</h2>
