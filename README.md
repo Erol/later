@@ -4,7 +4,7 @@
 
 ## Usage
 
-Later allows you to set an event with unique names on a schedule and run it in the future:
+Later allows you to set unique events on a schedule and run them in the future:
 
     require 'later'
 
@@ -49,10 +49,10 @@ If for some reason, a worker has to stop itself from running:
     Later[:reservations].each do |event|
       # Do something with the event.
 
-      Later[:reservations].stop if stop?
+      Later[:reservations].stop! if stop?
     end
 
-    # This line is reached if stop? is true.
+    # This line is reached when stop? is true and Later[:reservations].stop! is called.
 
 ## Installation
 
