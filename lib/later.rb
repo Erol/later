@@ -94,16 +94,9 @@ module Later
 
         time = Time.now.to_i
 
-        ids = schedule.redis.multi do
-          schedule.zrangebyscore '-inf', time
-          schedule.zremrangebyscore '-inf', time
-        end.first
+        push_to_queue pop_from_schedules(time)
 
-        key.redis.multi do
-          ids.each { |id| queue.lpush id }
-        end
-
-        event = queue.brpoplpush(backup, 1)
+        event = pop_from_queue
 
         next unless event
 
@@ -129,6 +122,23 @@ module Later
 
     def backup
       @backup ||= queue[Socket.gethostname][Process.pid]
+    end
+
+    def pop_from_schedules(time)
+      schedule.redis.multi do
+        schedule.zrangebyscore '-inf', time
+        schedule.zremrangebyscore '-inf', time
+      end.first
+    end
+
+    def push_to_queue(ids)
+      key.redis.multi do
+        ids.each { |id| queue.lpush id }
+      end
+    end
+
+    def pop_from_queue
+      queue.brpoplpush(backup, 1)
     end
   end
 
