@@ -148,11 +148,11 @@ module Later
     Nest.new('Later')
   end
 
+  # The easiest way to create or reference a schedule. Returns an instance of a Later::Schedule with the given key.
+  #
+  #   Later[:reservations] #=> #<Later::Schedule:0x007faf3b054f50 @key="Later:reservations">
+  #
   def self.[](schedule)
-    if @schedules[schedule.to_sym]
-      @schedules[schedule.to_sym]
-    else
-      @schedules[schedule.to_sym] = Schedule.new schedule
-    end
+    @schedules[schedule.to_sym] ||= Schedule.new schedule
   end
 end
