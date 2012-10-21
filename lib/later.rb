@@ -115,7 +115,7 @@ module Later
         rescue Exception => e
           exceptions.rpush JSON(time: Time.now, event: event, message: e.inspect)
         ensure
-          backup.del
+          local.del
         end
       end
     end
@@ -130,8 +130,8 @@ module Later
       @queue ||= key[:queue]
     end
 
-    def backup
-      @backup ||= queue[Socket.gethostname][Process.pid]
+    def local
+      @local ||= queue[Socket.gethostname][Process.pid]
     end
 
     def pop_from_schedules(time)
