@@ -90,13 +90,23 @@ module Later
       @stop = true
     end
 
-    # Process each event on the schedule. The block only gets called when an event is due to run based on the current time.
+    # Processes each scheduled unique event. The block only gets called when an event is due to run based on the current time.
+    #
+    # Accepts an optional `timeout` parameter with a default value of `1`. Passing an `Integer` will use Redis' blocking mechanism
+    # to process the schedule and is therefore more efficient. Passing a `Float` will poll Redis using the given timeout, and should
+    # only be used for events which need to be triggered with millisecond precision.
     #
     #   Later[:reservations].each do |event|
     #     # Do something with the event
     #   end
-
-    def each(&block)
+    #
+    # The schedule will be polled every 0.1 seconds:
+    #
+    #   Later[:reservations].each(0.1) do |event|
+    #     # Do something with the event
+    #   end
+    #
+    def each(timeout = 1, &block)
       @stop = false
 
       loop do
@@ -105,10 +115,7 @@ module Later
         time = Time.now.to_f
 
         push_to_queue pop_from_schedules(time)
-
-        event = pop_from_queue
-
-        next unless event
+        next unless event = pop_from_queue(timeout)
 
         begin
           block.call event
@@ -147,8 +154,14 @@ module Later
       end
     end
 
-    def pop_from_queue
-      queue.brpoplpush(backup, 1)
+    def pop_from_queue(timeout)
+      if timeout.is_a? Integer
+        queue.brpoplpush(local, timeout)
+      else
+        result = queue.rpoplpush(local)
+        sleep timeout unless result
+        result
+      end
     end
   end
 
