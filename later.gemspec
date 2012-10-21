@@ -4,8 +4,8 @@ require File.expand_path('../lib/later/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ['Erol Fornoles']
   gem.email         = ['erol.fornoles@gmail.com']
-  gem.description   = %q{Later is a Redis-backed event scheduling library for Ruby}
-  gem.summary       = %q{Later is a Redis-backed event scheduling library for Ruby}
+  gem.description   = %q{Lean Redis-backed event scheduling library for Ruby}
+  gem.summary       = %q{Lean Redis-backed event scheduling library for Ruby}
   gem.homepage      = 'http://erol.github.com/later'
 
   gem.files         = `git ls-files`.split($\)
