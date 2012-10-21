@@ -18,64 +18,67 @@ module Later
       end
     end
 
-    # Get the Nest key of the schedule.
+    # Returns the Nest key of this schedule.
     #
-    #   Later[:reservations].key #=> Later::reservations
-
+    #   Later[:reservations].key #=> Later:reservations
+    #
     def key
       @key
     end
 
-    # Get the Nest key of the schedule exception list.
+    # Returns the Nest key of this schedule's exception list.
     #
-    #   Later[:reservations].exceptions #=> Later::reservations::exceptions
-
+    #   Later[:reservations].exceptions #=> Later:reservations:exceptions
+    #
     def exceptions
       @exceptions ||= key[:exceptions]
     end
 
-    # Get the schedule time of a unique event.
+    # Returns the time of a scheduled unique event.
     #
     #   Later[:reservations].set 'event-1', Time.parse('2012-09-28 11:36:17 +0800')
     #   Later[:reservations]['event-1'] #=> 2012-09-28 11:36:17 +0800
-
+    #
     def [](event)
       Time.at key[:schedule].zscore(event) rescue nil
     end
 
-    # Gets the number of unique scheduled events.
+    # Returns the number of scheduled unique events.
     #
     #   Later[:reservations].set 'event-1', Time.now + 60
     #   Later[:reservations].set 'event-2', Time.now + 120
     #   Later[:reservations].set 'event-3', Time.now + 180
     #   Later[:reservations].count #=> 3
-
+    #
     def count
       key[:schedule].zcard
     end
 
-    # Set a unique event to the schedule.
     #
     #   Later[:reservations].set 'event-1', Time.now + 60
 
+    # Sets a unique event to this schedule.
+    #
+    #   Later[:reservations].set 'event-1', Time.now + 60
+    #
     def set(event, time)
       key[:schedule].zadd time.to_i, event
     end
 
-    # Unset a unique event from the schedule.
+    # Unsets a unique event from this schedule.
     #
-    #   Later[:reservations].unset 'event-2'
-
+    #   Later[:reservations].unset 'event-1'
+    #
     def unset(event)
       key[:schedule].zrem event
     end
 
-    # When called inside an `each` block, `stop!` signals the block to halt processing of the schedule.
+    # When called inside an `each` block, `stop!` signals the block to halt processing of this schedule.
     #
     #   Later[:reservations].each do |event|
     #     Later[:reservations].stop!
     #   end
-
+    #
     def stop!
       @stop = true
     end
@@ -144,6 +147,10 @@ module Later
 
   @schedules = {}
 
+  # Returns the Nest key of this module.
+  #
+  #   Later[:reservations].key #=> Later::reservations
+  #
   def self.key
     Nest.new('Later')
   end
