@@ -54,8 +54,15 @@ module Later
       key[:schedule].zcard
     end
 
-    #
+    # Returns `true` if there are no scheduled unique events. Returns `false` otherwise.
     #   Later[:reservations].set 'event-1', Time.now + 60
+    #   Later[:reservations].empty? #=> false
+    #   Later[:reservations].unset 'event-1'
+    #   Later[:reservations].empty? #=> true
+    #
+    def empty?
+      count.zero?
+    end
 
     # Sets a unique event to this schedule.
     #
