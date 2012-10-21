@@ -69,7 +69,7 @@ module Later
     #   Later[:reservations].set 'event-1', Time.now + 60
     #
     def set(event, time)
-      key[:schedule].zadd time.to_i, event
+      key[:schedule].zadd time.to_f, event
     end
 
     # Unsets a unique event from this schedule.
@@ -102,7 +102,7 @@ module Later
       loop do
         break if stop?
 
-        time = Time.now.to_i
+        time = Time.now.to_f
 
         push_to_queue pop_from_schedules(time)
 
