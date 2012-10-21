@@ -16,7 +16,7 @@
     <div class="wrapper">
       <header>
         <h1>Later</h1>
-        <p>Redis-backed event scheduling library for Ruby</p>
+        <p>Lean Redis-backed event scheduling library for Ruby</p>
 
         <p class="view"><a href="https://github.com/Erol/later">View the Project on GitHub <small>Erol/later</small></a></p>
 
@@ -30,7 +30,7 @@
       <section>
         <h1>Later</h1>
 
-<p><a href="erol.github.com/later"><strong>Later</strong></a> is a lightweight Redis-backed event scheduling library for Ruby.</p>
+<p><a href="erol.github.com/later"><strong>Later</strong></a> is a lean Redis-backed event scheduling library for Ruby.</p>
 
 <h2>Usage</h2>
 
@@ -38,33 +38,34 @@
 
 <pre><code>require 'later'
 
-Later[:reservations].set 'event-1', Time.now + 60
-Later[:reservations].set 'event-2', Time.now + 120
-Later[:reservations].set 'event-3', Time.now + 180
+schedule = Later[:schedule]
+schedule.set 'event-1', Time.now + 60
+schedule.set 'event-2', Time.now + 120
+schedule.set 'event-3', Time.now + 180
 </code></pre>
 
 <p>Rescheduling an event is simple:</p>
 
-<pre><code>Later[:reservations].set 'event-1', Time.now + 240
+<pre><code>schedule.set 'event-1', Time.now + 240
 </code></pre>
 
-<p>And an event can also be unset:</p>
+<p>And an event can unset with equal ease:</p>
 
-<pre><code>Later[key].unset 'event-1'
+<pre><code>schedule.unset 'event-1'
 </code></pre>
 
 <p>You can manage multiple schedules using different keys:</p>
 
-<pre><code>Later[:reservations]
-Later[:appointments]
+<pre><code>reservations = Later[:reservations]
+appointments = Later[:appointments]
 </code></pre>
 
 <p>The schedules are stored on the default Redis instance. If you need a schedule which must reside on a different Redis instance, you can pass a <a href="github.com/soveran/nest">Nest</a> object when referencing a schedule set.</p>
 
 <pre><code>redis = Redis.new host: host, port: port
-key = Nest.new :reservations, redis
+key = Nest.new 'Reservations', redis
 
-Later[key]
+reservations = Later[key]
 </code></pre>
 
 <h3>Workers</h3>
@@ -73,19 +74,36 @@ Later[key]
 
 <pre><code>require 'later'
 
-Later[:reservations].each do |event|
+Later[:schedule].each do |event|
   # Do something with the event.
 end
 
 # This line is never reached.
 </code></pre>
 
+<h4>Timeouts, Blocking &amp; Polling</h4>
+
+<p><code>Later::Schedule#each</code> accepts an optional <code>timeout</code> parameter, which has a default value of <code>1</code>. Passing an <code>Integer</code> will use Redis' blocking mechanism
+to process the schedule and is therefore more efficient. Passing a <code>Float</code> will poll Redis using the given timeout, and should
+only be used for events which need to be triggered with millisecond precision.</p>
+
+<p>See <a href="http://redis.io/commands/blpop">BLPOP</a> and <a href="http://redis.io/commands/brpoplpush">BRPOPLPUSH</a> for more information.</p>
+
+<p>The below schedule will be polled every 0.1 seconds:</p>
+
+<pre><code>Later[:schedule].each(0.1) do |event|
+  # Do something with the event.
+end
+</code></pre>
+
+<h4>Stopping</h4>
+
 <p>If for some reason, a worker has to stop itself from running:</p>
 
-<pre><code>Later[:reservations].each do |event|
+<pre><code>Later[:schedule].each do |event|
   # Do something with the event.
 
-  Later[:reservations].stop! if stop?
+  Later[:schedule].stop! if stop?
 end
 
 # This line is reached when stop? is true and Later[:reservations].stop! is called.
